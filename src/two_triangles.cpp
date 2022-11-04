@@ -5,23 +5,25 @@
 
 #include "shared.h"
 
-const float twoTriangleVertices[] = {
+const float triangleA[] = {
     0.0f,  0.0f,  0.0f, // first triangle
     -1.0f, -1.0f, 0.0f, //
     -1.0f, 1.0f,  0.0f, //
-    0.0f,  0.0f,  0.0f, // second triangle
-    1.0f,  -1.0f, 0.0f, //
-    0.0f,  -1.0f, 0.0f  //
 };
 
-auto setupData() {
+const float triangleB[] = {
+    0.0f, 0.0f,  0.0f, // second triangle
+    1.0f, -1.0f, 0.0f, //
+    0.0f, -1.0f, 0.0f  //
+};
+
+auto setupData(const float *data, size_t size) {
   unsigned int VBO;
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
   // copies data to currently bound buffer
-  glBufferData(GL_ARRAY_BUFFER, sizeof(twoTriangleVertices),
-               twoTriangleVertices,
+  glBufferData(GL_ARRAY_BUFFER, size, data,
                GL_STATIC_DRAW // data is only set once
   );
   return VBO;
@@ -66,22 +68,27 @@ int main() {
   auto fragmentShader = shared::setupFragmentShader(&fragmentShaderSource);
   auto shaderprogram = shared::setupShaderProgram(vertexShader, fragmentShader);
 
-  unsigned int VAO;
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
+  unsigned int VAO[2];
+  glGenVertexArrays(2, VAO);
+  glBindVertexArray(VAO[0]);
 
-  setupData();
+  setupData(triangleA, sizeof(triangleA));
   linkVertexAttributes();
 
-  //  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glBindVertexArray(VAO[1]);
+
+  setupData(triangleB, sizeof(triangleB));
+  linkVertexAttributes();
 
   shared::mainLoop(window, [=]() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(shaderprogram);
-    glBindVertexArray(VAO);
-    //    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(VAO[0]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    glBindVertexArray(VAO[1]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
   });
 }
