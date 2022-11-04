@@ -13,15 +13,26 @@ void processInput(GLFWwindow *window) {
   }
 }
 
-float vertices[] = {
-    0.5f, 0.5f, 0.0f,  // top right
-    0.5f, -0.5f, 0.0f, // bottom right
-    -0.5f, 0.5f, 0.0f, // top left
-    // second triangle
-    0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f, // bottom left
-    -0.5f, 0.5f, 0.0f   // top left
+// float verticesSquare[] = {
+//     0.5f, 0.5f, 0.0f,  // top right
+//     0.5f, -0.5f, 0.0f, // bottom right
+//     -0.5f, 0.5f, 0.0f, // top left
+//     // second triangle
+//     0.5f, -0.5f, 0.0f,  // bottom right
+//     -0.5f, -0.5f, 0.0f, // bottom left
+//     -0.5f, 0.5f, 0.0f   // top left
+// };
 
+float squareVertices[] = {
+    0.5f,  0.5f,  0.0f, // top right
+    0.5f,  -0.5f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f, // bottom left
+    -0.5f, 0.5f,  0.0f  // top left
+};
+
+unsigned int indicesSquareVertices[] = {
+    0, 1, 3, // first triangle
+    1, 2, 3  // second triangle
 };
 
 auto setupData() {
@@ -30,9 +41,15 @@ auto setupData() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
   // copies data to currently bound buffer
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+  glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices,
                GL_STATIC_DRAW // data is only set once
   );
+  unsigned int EBO;
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesSquareVertices),
+               indicesSquareVertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
   return VBO;
 }
@@ -171,7 +188,8 @@ int main() {
 
     glUseProgram(shaderprogram);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    //    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
