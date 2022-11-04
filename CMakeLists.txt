@@ -10,3 +10,11 @@ add_executable(learnOpenGlExe
 include_directories(./src)
 include_directories(./include)
 target_link_libraries(learnOpenGlExe glfw)
+
+add_executable(twoTriangles
+  src/two_triangles.cpp
+  src/glad.c
+  src/shared.cpp
+)
+target_link_libraries(twoTriangles glfw)
+

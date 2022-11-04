@@ -23,7 +23,7 @@ GLFWwindow *setupGlfwWindow() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   int const windowWidth = 800;
-  int const windowHeight = 600;
+  int const windowHeight = 800;
 
   GLFWwindow *window =
       glfwCreateWindow(windowWidth, windowHeight, "LearnOpenGL", NULL, NULL);
