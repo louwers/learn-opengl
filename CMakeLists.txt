@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.2)
+project(LearnOpenGl)
+add_executable(learnOpenGlExe src/main.cc src/glad.c)
+include_directories(./include)
+target_link_libraries(learnOpenGlExe glfw)
