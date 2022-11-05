@@ -40,12 +40,21 @@ void main() {
 }
 )";
 
-auto fragmentShaderSource = R"(
+auto fragmentShaderSource1 = R"(
 #version 330 core
 out vec4 FragColor;
 
 void main() {
     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+}
+)";
+
+auto fragmentShaderSource2 = R"(
+#version 330 core
+out vec4 FragColor;
+
+void main() {
+    FragColor = vec4(0.5f, 0.5f, 0.8f, 1.0f);
 }
 )";
 
@@ -61,12 +70,18 @@ void linkVertexAttributes() {
   glEnableVertexAttribArray(0);
 }
 
-int main() {
-  auto window = shared::setupGlfwWindow();
+using namespace shared;
 
-  auto vertexShader = shared::setupVertexShader(&vertexShaderSource);
-  auto fragmentShader = shared::setupFragmentShader(&fragmentShaderSource);
-  auto shaderprogram = shared::setupShaderProgram(vertexShader, fragmentShader);
+int main() {
+  auto window = setupGlfwWindow();
+
+  auto vertexShader1 = setupVertexShader(&vertexShaderSource);
+  auto fragmentShader1 = setupFragmentShader(&fragmentShaderSource1);
+  auto shaderprogram1 = setupShaderProgram(vertexShader1, fragmentShader1);
+
+  auto vertexShader2 = setupVertexShader(&vertexShaderSource);
+  auto fragmentShader2 = setupFragmentShader(&fragmentShaderSource2);
+  auto shaderprogram2 = setupShaderProgram(vertexShader2, fragmentShader2);
 
   unsigned int VAO[2];
   glGenVertexArrays(2, VAO);
@@ -84,10 +99,11 @@ int main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(shaderprogram);
+    glUseProgram(shaderprogram1);
     glBindVertexArray(VAO[0]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
+    glUseProgram(shaderprogram2);
     glBindVertexArray(VAO[1]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
   });
