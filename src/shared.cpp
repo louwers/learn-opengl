@@ -1,6 +1,5 @@
 #include "shared.h"
 
-#include <concepts>
 #include <iostream>
 
 namespace shared {
@@ -41,10 +40,11 @@ GLFWwindow *setupGlfwWindow() {
   return window;
 }
 
-unsigned int setupVertexShader(char const **source) {
+unsigned int setupVertexShader(std::string const &source) {
   unsigned int vertexShader;
   vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, source, nullptr);
+  auto sourceC = source.c_str();
+  glShaderSource(vertexShader, 1, &sourceC, nullptr);
   glCompileShader(vertexShader);
 
   int success = 0;
@@ -58,9 +58,10 @@ unsigned int setupVertexShader(char const **source) {
   return vertexShader;
 }
 
-unsigned int setupFragmentShader(char const **source) {
+unsigned int setupFragmentShader(std::string const &source) {
   unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader, 1, source, nullptr);
+  auto sourceC = source.c_str();
+  glShaderSource(fragmentShader, 1, &sourceC, nullptr);
   glCompileShader(fragmentShader);
 
   int success = 0;
@@ -97,4 +98,13 @@ unsigned int setupShaderProgram(unsigned int vertexShader,
 
   return shaderProgram;
 }
+
+int getNrAttributes() {
+  int nrAttributes;
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+  //  std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes
+  //            << std::endl;
+  return nrAttributes;
+}
+
 } // namespace shared

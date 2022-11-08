@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include <concepts>
+#include <string>
 
 #ifndef SHARED_H
 #define SHARED_H
@@ -25,10 +26,12 @@ void mainLoop(GLFWwindow *window, std::invocable<> auto render) {
 }
 
 GLFWwindow *setupGlfwWindow();
-unsigned int setupVertexShader(char const **source);
-unsigned int setupFragmentShader(char const **source);
+unsigned int setupVertexShader(std::string const &source);
+unsigned int setupFragmentShader(std::string const &source);
 unsigned int setupShaderProgram(unsigned int vertexShader,
                                 unsigned int fragmentShader);
+
+int getNrAttributes();
 }
 
 

@@ -1,20 +1,47 @@
 cmake_minimum_required(VERSION 3.2)
 project(LearnOpenGl)
 
-set(CMAKE_CXX_STANDARD 20)
-
 add_executable(learnOpenGlExe
   src/main.cpp
   src/glad.c
-  src/shared.cpp)
+  src/shared.cpp
+  src/shader.cpp
+  src/file.cpp
+)
+
+target_compile_features(learnOpenGlExe PUBLIC cxx_std_20)
+
 include_directories(./src)
 include_directories(./include)
-target_link_libraries(learnOpenGlExe glfw)
+target_link_libraries(learnOpenGlExe glfw fmt)
 
-add_executable(twoTriangles
-  src/two_triangles.cpp
-  src/glad.c
-  src/shared.cpp
+
+# testing
+
+configure_file(test/simple.txt
+  test/simple.txt
+  COPYONLY
 )
-target_link_libraries(twoTriangles glfw)
 
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+add_executable(
+  file_test
+  src/file_test.cpp
+  src/file.cpp
+)
+target_link_libraries(
+  file_test
+  GTest::gtest_main
+  fmt
+)
+
+include(GoogleTest)
+gtest_discover_tests(file_test)

@@ -3,40 +3,34 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+#include "shader.h"
 #include "shared.h"
 
-float squareVertices[] = {
-    0.5f,  0.5f,  0.0f, // top right
-    0.5f,  -0.5f, 0.0f, // bottom right
-    -0.5f, -0.5f, 0.0f, // bottom left
-    -0.5f, 0.5f,  0.0f  // top left
+const float triangleA[] = {
+    0.0f,  0.0f,  0.0f, // first triangle
+    -1.0f, -1.0f, 0.0f, //
+    -1.0f, 1.0f,  0.0f, //
 };
 
-unsigned int indicesSquareVertices[] = {
-    0, 1, 3, // first triangle
-    1, 2, 3  // second triangle
+const float triangleB[] = {
+    0.0f, 0.0f,  0.0f, // second triangle
+    1.0f, -1.0f, 0.0f, //
+    0.0f, -1.0f, 0.0f  //
 };
 
-auto setupData() {
+auto setupData(const float *data, size_t size) {
   unsigned int VBO;
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
   // copies data to currently bound buffer
-  glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), squareVertices,
+  glBufferData(GL_ARRAY_BUFFER, size, data,
                GL_STATIC_DRAW // data is only set once
   );
-  unsigned int EBO;
-  glGenBuffers(1, &EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesSquareVertices),
-               indicesSquareVertices, GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
   return VBO;
 }
 
-auto vertexShaderSource = R"(
+auto vertexShaderSource = std::string(R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
 
@@ -45,16 +39,25 @@ void main() {
       1.0  // perspective division (?)
     );
 }
-)";
+)");
 
-auto fragmentShaderSource = R"(
+auto fragmentShaderSource1 = std::string(R"(
 #version 330 core
 out vec4 FragColor;
 
 void main() {
     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 }
-)";
+)");
+
+auto fragmentShaderSource2 = std::string(R"(
+#version 330 core
+out vec4 FragColor;
+
+void main() {
+    FragColor = vec4(0.5f, 0.5f, 0.8f, 1.0f);
+}
+)");
 
 void linkVertexAttributes() {
   glVertexAttribPointer(
@@ -68,28 +71,37 @@ void linkVertexAttributes() {
   glEnableVertexAttribArray(0);
 }
 
+using namespace shared;
+
 int main() {
-  auto window = shared::setupGlfwWindow();
+  auto window = setupGlfwWindow();
+  std::cerr << "NrAttributes" << shared::getNrAttributes();
 
-  auto vertexShader = shared::setupVertexShader(&vertexShaderSource);
-  auto fragmentShader = shared::setupFragmentShader(&fragmentShaderSource);
-  auto shaderprogram = shared::setupShaderProgram(vertexShader, fragmentShader);
+  auto shader1 = Shader(vertexShaderSource, fragmentShaderSource1);
+  auto shader2 = Shader(vertexShaderSource, fragmentShaderSource2);
 
-  unsigned int VAO;
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
+  unsigned int VAO[2];
+  glGenVertexArrays(2, VAO);
+  glBindVertexArray(VAO[0]);
 
-  setupData();
+  setupData(triangleA, sizeof(triangleA));
   linkVertexAttributes();
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glBindVertexArray(VAO[1]);
 
-  shared::mainLoop(window, [=]() {
+  setupData(triangleB, sizeof(triangleB));
+  linkVertexAttributes();
+
+  mainLoop(window, [=]() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(shaderprogram);
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    shader1.use();
+    glBindVertexArray(VAO[0]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    shader2.use();
+    glBindVertexArray(VAO[1]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
   });
 }
