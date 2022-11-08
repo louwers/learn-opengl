@@ -33,20 +33,25 @@ auto setupData(const float *data, size_t size) {
 auto vertexShaderSource = std::string(R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
+out vec3 position;
+
+uniform float offset;
 
 void main() {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z,
+    gl_Position = vec4(aPos.x + offset, -aPos.y, aPos.z,
       1.0  // perspective division (?)
     );
+    position = vec3(gl_Position);
 }
 )");
 
 auto fragmentShaderSource1 = std::string(R"(
 #version 330 core
 out vec4 FragColor;
+in vec3 position;
 
 void main() {
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    FragColor = vec4(position.x, position.y, position.z, 1.0f);
 }
 )");
 
@@ -92,16 +97,25 @@ int main() {
   setupData(triangleB, sizeof(triangleB));
   linkVertexAttributes();
 
-  mainLoop(window, [=]() {
+  float offset = 0;
+
+  mainLoop(window, [=, &offset]() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    if (offset > 1) {
+      offset = 0;
+    } else {
+      offset += 0.01;
+    }
+
     shader1.use();
+    shader2.setFloat("offset", offset);
     glBindVertexArray(VAO[0]);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    shader2.use();
-    glBindVertexArray(VAO[1]);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    //    shader2.use();
+    //    glBindVertexArray(VAO[1]);
+    //    glDrawArrays(GL_TRIANGLES, 0, 3);
   });
 }
